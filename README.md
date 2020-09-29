@@ -32,7 +32,7 @@ Get missing data.
 missing_idx = ismissing(data);
 ```
 
-Merging data. (innerjoin, outerjoin)
+Merge data. (innerjoin, outerjoin)
 ```
 season = readtable('season.csv', 'PreserveVariableNames', true);
 season.Properties.VariableNames = {'yyyy'; 'PerNo'; 'overWork'; 'TripA'; 'TripB'; 'LeaveA'; 'LeaveB'};
@@ -48,10 +48,56 @@ season_sort = sortrows(season, {'yyyy'; 'PerNo'}, 'descend')
 
 ## Classification Learner
 
+Simple class prediction without probability.
 ```
 yfit = trainedModel.predictFcn(train);
 ```
 
+Simple prediction with probability output.
 ```
-[yfit, score] = predict(trainedModel.ClassificationTree, train);
+[yfit, prob] = predict(trainedModel.ClassificationTree, train);
+```
+
+KFold prediction.
+```
+mdl = fitctree(train, 'PerStatus', 'KFold', 5);
+y_hat = kfoldPredict(mdl);
+confusionchart(train.PerStatus, y_hat);
+```
+
+Auto ML.
+```
+mdl = fitcauto(train, 'PerStatus', 'OptimizeHyperparameters', 'auto')
+[yfit, prob] = predict(mdl, train);
+```
+
+### Validation
+1. Holdout
+2. KFold
+3. Leave-one-out
+
+### Feature Transformation
+1. `pca`
+2. `sequntialfs`
+3. `factoran`
+4. `predictorImportance`
+
+### Feature Selection
+
+Feature importance.
+```
+imp = predictorImportance(trainedModel.ClassificationTree)
+bar(imp)
+```
+
+NCA (Neighborhood Component Analysis) using `fsrnca` from [MATLAB](https://www.mathworks.com/help/stats/neighborhood-component-analysis.html) website.
+
+### Optimisation
+
+Use `hyperparameters` to optimise parameters.
+
+### Plot
+
+```
+view(mdl, 'mode', 'graph')
 ```
